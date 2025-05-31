@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 export default async function handler(req, res) {
   const { iccid } = req.query;
   if (!iccid) return res.status(400).json({ status: false, message: "ICCID مطلوب" });
@@ -26,7 +24,6 @@ export default async function handler(req, res) {
       },
     });
     const usageData = await usageResponse.json();
-    console.log("Usage data:", usageData);
 
     // استدعاء الحزم bundles
     const bundlesResponse = await fetch(`https://esimcard.com/api/developer/reseller/my-bundles`, {
@@ -36,16 +33,12 @@ export default async function handler(req, res) {
       },
     });
     const bundlesData = await bundlesResponse.json();
-    console.log("Bundles data:", bundlesData.data);
 
-    // بحث مرن عن الحزمة الخاصة بـ ICCID
     const matchedBundle = bundlesData.data.find(bundle =>
       bundle.sim.iccid === iccid ||
       bundle.sim.iccid.includes(iccid) ||
       iccid.includes(bundle.sim.iccid)
     );
-
-    console.log("Matched bundle:", matchedBundle);
 
     const expiryDate = matchedBundle ? matchedBundle.date_expiry : null;
 
